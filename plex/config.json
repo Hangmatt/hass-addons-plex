@@ -1,9 +1,9 @@
 {
   "name": "Plex Media Server",
-  "version": "dev",
+  "version": "localdev",
   "slug": "plex",
   "description": "Recorded media, live TV, online news, and podcasts ready to stream.",
-  "url": "https://github.com/hassio-addons/addon-plex",
+  "url": "https://github.com/Hangmatt/addon-plex.git",
   "webui": "http://[HOST]:[PORT:32400]/web",
   "startup": "services",
   "arch": ["aarch64", "amd64", "armv7", "i386"],
@@ -35,11 +35,13 @@
   "hassio_api": true,
   "options": {
     "claim_code": "",
-    "webtools": false
+    "webtools": false,
+    "library_path": "/usr/lib/plexmediaserver"
   },
   "schema": {
     "log_level": "list(trace|debug|info|notice|warning|error|fatal)?",
     "claim_code": "str",
-    "webtools": "bool"
+    "webtools": "bool",
+    "library_path": "str"
   }
 }
