@@ -36,12 +36,14 @@
   "options": {
     "claim_code": "",
     "webtools": false,
+    "external HDD": true,
     "library_path": "/usr/lib/plexmediaserver"
   },
   "schema": {
     "log_level": "list(trace|debug|info|notice|warning|error|fatal)?",
     "claim_code": "str",
     "webtools": "bool",
+    "external HDD": "bool",
     "library_path": "str"
   }
 }
