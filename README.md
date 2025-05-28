@@ -25,10 +25,10 @@ Your recorded media, live TV, online news, and podcasts, beautifully organized
 and ready to stream.
 
 [:books: Read the full add-on documentation][docs]
+
 ## About this fork
 
 Trying to create a version that does auto-update and uses a custom location for the libary (hdd instead of sd-card). This addon-on is a combination of the original PMS-docker and Frenck's add-on. Hope it's useful...
-
 
 ## About
 
