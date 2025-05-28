@@ -1,13 +1,23 @@
+<<<<<<< HEAD
 ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:7.7.0
 # hadolint ignore=DL3006
+=======
+ARG BUILD_FROM=ghcr.io/hassio-addons/ubuntu-base/amd64:6.2.0
+# FROM ubuntu:20.04
+>>>>>>> de42c4ca1cff17edfc2864682f39df04c1d7088c
 FROM ${BUILD_FROM}
 
-# Set shell
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+ARG S6_OVERLAY_VERSION=v2.1.0.0
+ARG S6_OVERLAY_ARCH=aarch64
+ARG PLEX_BUILD=linux-aarch64
+ARG PLEX_DISTRO=debian
+ARG DEBIAN_FRONTEND="noninteractive"
+ENV TERM="xterm" LANG="C.UTF-8" LC_ALL="C.UTF-8"
 
-# Setup base system
-ARG BUILD_ARCH=amd64
+ENTRYPOINT ["/init"]
+
 RUN \
+<<<<<<< HEAD
     echo "deb http://deb.debian.org/debian bookworm contrib non-free" \
         >> /etc/apt/sources.list \
     && apt-get update \
@@ -30,35 +40,54 @@ RUN \
         /tmp/* \
         /var/{cache,log}/* \
         /var/lib/apt/lists/*
+=======
+# Update and get dependencies
+    apt-get update && \
+    apt-get install -y \
+      tzdata \
+      curl \
+      xmlstarlet \
+      uuid-runtime \
+      unrar \
+    && \
+    \
+# Fetch and extract S6 overlay
+    curl -J -L -o /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.gz https://github.com/just-containers/s6-overlay/releases/download/${S6_OVERLAY_VERSION}/s6-overlay-${S6_OVERLAY_ARCH}.tar.gz && \
+    tar xzf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.gz -C / --exclude='./bin' && \
+    tar xzf /tmp/s6-overlay-${S6_OVERLAY_ARCH}.tar.gz -C /usr ./bin && \
+    \
+# Add user
+    useradd -U -d /config -s /bin/false plex && \
+    usermod -G users plex && \
+    \
+# Setup directories
+    mkdir -p \
+      /config \
+      /transcode \
+      /data \
+    && \
+    \
+# Cleanup
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /tmp/* && \
+    rm -rf /var/tmp/*
+>>>>>>> de42c4ca1cff17edfc2864682f39df04c1d7088c
 
-# Copy root filesystem
-COPY rootfs /
+EXPOSE 32400/tcp 3005/tcp 8324/tcp 32469/tcp 1900/udp 32410/udp 32412/udp 32413/udp 32414/udp
+VOLUME /config /transcode
 
-# Build arguments
-ARG BUILD_ARCH
-ARG BUILD_DATE
-ARG BUILD_DESCRIPTION
-ARG BUILD_NAME
-ARG BUILD_REF
-ARG BUILD_REPOSITORY
-ARG BUILD_VERSION
+ENV CHANGE_CONFIG_DIR_OWNERSHIP="true" \
+    HOME="/config"
 
-# Labels
-LABEL \
-    io.hass.name="${BUILD_NAME}" \
-    io.hass.description="${BUILD_DESCRIPTION}" \
-    io.hass.arch="${BUILD_ARCH}" \
-    io.hass.type="addon" \
-    io.hass.version=${BUILD_VERSION} \
-    maintainer="Franck Nijhof <frenck@addons.community>" \
-    org.opencontainers.image.title="${BUILD_NAME}" \
-    org.opencontainers.image.description="${BUILD_DESCRIPTION}" \
-    org.opencontainers.image.vendor="Home Assistant Community Add-ons" \
-    org.opencontainers.image.authors="Franck Nijhof <frenck@addons.community>" \
-    org.opencontainers.image.licenses="MIT" \
-    org.opencontainers.image.url="https://addons.community" \
-    org.opencontainers.image.source="https://github.com/${BUILD_REPOSITORY}" \
-    org.opencontainers.image.documentation="https://github.com/${BUILD_REPOSITORY}/blob/main/README.md" \
-    org.opencontainers.image.created=${BUILD_DATE} \
-    org.opencontainers.image.revision=${BUILD_REF} \
-    org.opencontainers.image.version=${BUILD_VERSION}
+ARG TAG=beta
+ARG URL=
+
+COPY root/ /
+
+RUN \
+# Save version and install
+    /installBinary.sh
+
+HEALTHCHECK --interval=5s --timeout=2s --retries=20 CMD /healthcheck.sh || exit 1
