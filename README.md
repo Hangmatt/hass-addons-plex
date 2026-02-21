@@ -96,12 +96,12 @@ SOFTWARE.
 [aarch64-shield]: https://img.shields.io/badge/aarch64-yes-green.svg
 [amd64-shield]: https://img.shields.io/badge/amd64-yes-green.svg
 [commits-shield]: https://img.shields.io/github/commit-activity/y/hassio-addons/addon-plex.svg
-[commits]: https://github.com/hassio-addons/addon-plex/commits/main
+[commits]: https://github.com/Hangmatt/hass-addons-plex/commits/main
 [contributors]: https://github.com/hassio-addons/addon-plex/graphs/contributors
 [discord-ha]: https://discord.gg/c5DvZ4e
 [discord-shield]: https://img.shields.io/discord/478094546522079232.svg
 [discord]: https://discord.me/hassioaddons
-[docs]: https://github.com/hassio-addons/addon-plex/blob/main/plex/DOCS.md
+[docs]: https://github.com/Hangmatt/hass-addons-plex/blob/main/plex/DOCS.md
 [forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg
 [forum]: https://community.home-assistant.io/t/home-assistant-community-add-on-plex-media-server/54383?u=frenck
 [frenck]: https://github.com/frenck
@@ -117,5 +117,5 @@ SOFTWARE.
 [project-stage-shield]: https://img.shields.io/badge/project%20stage-production%20ready-brightgreen.svg
 [reddit]: https://reddit.com/r/homeassistant
 [releases-shield]: https://img.shields.io/github/release/hassio-addons/addon-plex.svg
-[releases]: https://github.com/hassio-addons/addon-plex/releases
+[releases]: https://github.com/Hangmatt/hass-addons-plex/releases
 [repository]: https://github.com/hassio-addons/repository

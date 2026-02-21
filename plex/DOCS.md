@@ -177,7 +177,7 @@ SOFTWARE.
 [discord]: https://discord.me/hassioaddons
 [forum]: https://community.home-assistant.io/t/home-assistant-community-add-on-plex-media-server/54383?u=frenck
 [frenck]: https://github.com/frenck
-[issue]: https://github.com/hassio-addons/addon-plex/issues
+[issue]: https://github.com/Hangmatt/hass-addons-plex/issues
 [reddit]: https://reddit.com/r/homeassistant
-[releases]: https://github.com/hassio-addons/addon-plex/releases
+[releases]: https://github.com/Hangmatt/hass-addons-plex/releases
 [semver]: https://semver.org/spec/v2.0.0.html

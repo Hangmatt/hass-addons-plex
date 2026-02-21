@@ -2,43 +2,55 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/debian-base:8.1.4
 # hadolint ignore=DL3006
 FROM ${BUILD_FROM}
 
-# Set shell
+# Set shell to bash with strict error handling
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
-# Setup base system
-ARG BUILD_ARCH=arm64
+# Build arguments for version control and metadata
+ARG BUILD_ARCH=aarch64
 ARG PLEX_VERSION=1.43.0.10492
 ARG PLEX_HASH=121068a07
 
+# Install required system dependencies for Plex setup
+# curl: for downloading GPG keys and scripts
+# gnupg2: for verifying and dearmoring GPG keys
+# ca-certificates: for HTTPS certificate validation
+# apt-transport-https: for HTTPS repository access
 # hadolint ignore=DL3008
-RUN \
-    echo "deb http://deb.debian.org/debian trixie contrib non-free" \
-        >> /etc/apt/sources.list \
-    && apt-get update \
-    \
-    && apt-get install -y --no-install-recommends \
-        xmlstarlet>="1.6.1-4" \
-        uuid-runtime=2.41-5 \
-        unrar=1:7.1.8-1 \
-    \
-    && if [ "${BUILD_ARCH}" = "aarch64" ]; then ARCH="arm64"; fi \
-    && if [ "${BUILD_ARCH}" = "amd64" ]; then ARCH="amd64"; fi \
-    \
-    && curl -J -L -o /tmp/plexmediaserver.deb \
-        "https://downloads.plex.tv/plex-media-server-new/${PLEX_VERSION}-${PLEX_HASH}/debian/plexmediaserver_${PLEX_VERSION}-${PLEX_HASH}_${ARCH}.deb" \
-    \
-    && dpkg --install /tmp/plexmediaserver.deb \
-    \
-    && apt-get -y clean \
-    && rm -fr \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg2 \
+    ca-certificates \
+    apt-transport-https
+
+# Configure Plex Media Server repository and install
+# 1. Remove any existing Plex repository files to ensure clean state
+# 2. Download and import Plex GPG signing key for package verification
+# 3. Add official Plex repository configuration to apt sources
+# 4. Update package cache with new repository
+# 5. Install Plex Media Server package
+RUN rm -f /etc/apt/sources.list.d/plex* && \
+    curl -LsSf https://downloads.plex.tv/plex-keys/PlexSign.v2.key | gpg --yes --dearmor -o /usr/share/keyrings/plexmediaserver.v2.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb/ public main" > /etc/apt/sources.list.d/plex.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends plexmediaserver
+
+# Clean up package manager cache and temporary files to reduce image size
+# Removes:
+# - apt cache and update lists
+# - /tmp files
+# - /var/log files
+# - apt lists
+RUN apt-get -y clean && \
+    rm -fr \
         /tmp/* \
         /var/{cache,log}/* \
         /var/lib/apt/lists/*
 
-# Copy root filesystem
+# Copy custom container runtime filesystem configuration
+# Includes startup scripts, configuration templates, and service definitions
 COPY rootfs /
 
-# Build arguments
+# Declare build arguments for image metadata and labeling
 ARG BUILD_ARCH
 ARG BUILD_DATE
 ARG BUILD_DESCRIPTION
@@ -47,7 +59,8 @@ ARG BUILD_REF
 ARG BUILD_REPOSITORY
 ARG BUILD_VERSION
 
-# Labels
+# Add OCI and Home Assistant specific labels for image identification and metadata
+# Labels enable automatic discovery and configuration in Home Assistant
 LABEL \
     io.hass.name="${BUILD_NAME}" \
     io.hass.description="${BUILD_DESCRIPTION}" \
