@@ -6,7 +6,7 @@ FROM ${BUILD_FROM}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Build arguments for version control and metadata
-ARG BUILD_ARCH=aarch64
+ARG BUILD_ARCH=amd64
 ARG PLEX_VERSION=1.43.0.10492
 ARG PLEX_HASH=121068a07
 
@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gnupg2 \
     ca-certificates \
-    apt-transport-https
+    apt-transport-https && \
 
 # Configure Plex Media Server repository and install
 # 1. Remove any existing Plex repository files to ensure clean state
@@ -28,11 +28,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 3. Add official Plex repository configuration to apt sources
 # 4. Update package cache with new repository
 # 5. Install Plex Media Server package
-RUN rm -f /etc/apt/sources.list.d/plex* && \
+    rm -f /etc/apt/sources.list.d/plex* && \
     curl -LsSf https://downloads.plex.tv/plex-keys/PlexSign.v2.key | gpg --yes --dearmor -o /usr/share/keyrings/plexmediaserver.v2.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb/ public main" > /etc/apt/sources.list.d/plex.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends plexmediaserver
+    apt-get install -y --no-install-recommends plexmediaserver=1.43.0.10492* && \
 
 # Clean up package manager cache and temporary files to reduce image size
 # Removes:
@@ -40,7 +40,7 @@ RUN rm -f /etc/apt/sources.list.d/plex* && \
 # - /tmp files
 # - /var/log files
 # - apt lists
-RUN apt-get -y clean && \
+    apt-get -y clean && \
     rm -fr \
         /tmp/* \
         /var/{cache,log}/* \

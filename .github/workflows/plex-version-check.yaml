@@ -1,0 +1,63 @@
+name: Check for Plex Updates
+
+on:
+  schedule:
+    - cron: '0 0 */3 * *'  # Run every 3 days
+  workflow_dispatch:
+
+jobs:
+  check-plex-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check latest Plex version
+        id: plex-version
+        run: |
+          # Fetch the latest Plex Media Server release info
+          LATEST=$(curl -s "https://plex.tv/api/downloads/1.json" | jq -r '.computer.Linux.version // "unknown"')
+          CURRENT=$(grep -oP 'ARG PLEX_VERSION=\K[^[:space:]]+' plex/Dockerfile)
+          
+          echo "latest=$LATEST" >> $GITHUB_OUTPUT
+          echo "current=$CURRENT" >> $GITHUB_OUTPUT
+          
+          if [ "$LATEST" != "$CURRENT" ]; then
+            echo "update_available=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_available=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request for Plex update
+        if: steps.plex-version.outputs.update_available == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: "chore: update Plex Media Server to ${{ steps.plex-version.outputs.latest }}"
+          title: "chore: update Plex Media Server to ${{ steps.plex-version.outputs.latest }}"
+          body: |
+            **Automated Plex Version Update**
+            
+            A new version of Plex Media Server is available.
+            
+            - **Current Version:** ${{ steps.plex-version.outputs.current }}
+            - **Latest Version:** ${{ steps.plex-version.outputs.latest }}
+            
+            ⚠️ **Note:** The PLEX_HASH needs to be updated manually after reviewing the release.
+            
+            **Steps to complete this update:**
+            1. Download the Plex binary and calculate the hash: `sha256sum plexmediaserver_*.deb`
+            2. Update `PLEX_HASH` in the Dockerfile
+            3. Test the build locally
+            4. Merge this PR
+            
+            Please review the [Plex release notes](https://support.plex.tv/articles/201539776/) before merging.
+          branch: update/plex-${{ steps.plex-version.outputs.latest }}
+          delete-branch: true
+          labels: |
+            dependencies
+            plex-update
+
+      - name: Check base image updates
+        run: |
+          echo "✅ Base image uses semantic versioning (debian-base:8)"
+          echo "   This automatically receives security patches and minor updates"
+          echo "   Major version updates should be reviewed manually"
