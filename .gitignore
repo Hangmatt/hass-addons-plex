@@ -5,6 +5,9 @@
 *.swo
 *~
 .DS_Store
+.github/**
+.git/
+*.github*
 
 # Build and Docker
 .dockerignore
@@ -35,3 +38,4 @@ Thumbs.db
 *.tmp
 *.log
 tmp/
+plex/updateRepo.tar
