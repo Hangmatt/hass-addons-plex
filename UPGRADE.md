@@ -1,10 +1,12 @@
 # Package Upgrade Strategy
 
-This document outlines how package upgrades are handled in the Plex Media Server add-on.
+How package upgrades are handled in the Plex Media Server
+add-on.
 
 ## Overview
 
-The add-on uses a **hybrid pinning strategy** to balance security, stability, and maintainability:
+The add-on uses a **hybrid pinning strategy** to balance
+security, stability, and maintainability:
 
 - **Base Image (debian-base):** Semantic versioning for automatic security patches
 - **Plex Media Server:** Manually pinned for stability and testing
@@ -15,13 +17,16 @@ The add-on uses a **hybrid pinning strategy** to balance security, stability, an
 The `build.yaml` specifies `debian-base:8` (without patch version), which means:
 
 ✅ **Automatically receives:**
+
 - Security patches (8.0.x → 8.0.y)
 - Minor updates (8.0.x → 8.1.x)
 
 ⚠️ **Requires manual review:**
+
 - Major version updates (8.x → 9.x)
 
-This ensures the container stays secure without breaking changes from major version jumps.
+This ensures the container stays secure without breaking
+changes from major version jumps.
 
 ## Plex Media Server Updates
 
@@ -44,39 +49,54 @@ A GitHub Actions workflow (`plex-version-check.yaml`) runs every 3 days to:
 
 When a new version is detected:
 
-1. **Review the PR:** Check the [Plex release notes](https://support.plex.tv/articles/201539776/) for breaking changes
+1. **Review the PR:** Check
+   [Plex release notes](https://support.plex.tv/articles/201539776/)
+   for breaking changes
 2. **Calculate the hash:**
+
    ```bash
    # Download the binary for your architecture
    curl -O https://# [plex download URL]
    sha256sum plexmediaserver_*.deb
    ```
+
 3. **Update the Dockerfile:**
+
    ```dockerfile
    ARG PLEX_VERSION=X.Y.Z.XXXXX
    ARG PLEX_HASH=xxxxxxxxxxxxxxx
    ```
+
 4. **Test locally:**
+
    ```bash
    docker build -t plex:test plex/
-   docker run --rm -it plex:test /usr/lib/plexmediaserver/Plex\ Media\ Server --version
+   docker run --rm -it plex:test \
+     /usr/lib/plexmediaserver/Plex\ Media\ Server --version
    ```
+
 5. **Merge the PR** after verification
 
 ## System Dependencies
 
-System packages (curl, gnupg2, ca-certificates, apt-transport-https) are managed by the base image pinning strategy. They receive updates automatically through the debian-base image updates.
+System packages (curl, gnupg2, ca-certificates,
+apt-transport-https) are managed by base image pinning
+strategy. They receive updates automatically through
+debian-base image updates.
 
 ## Version Lock File
 
-| Component | Strategy | Update Method |
-|-----------|----------|----------------|
-| Base Image | Semantic (major.minor) | Automatic |
-| Plex Core | Exact Pin | Manual + CI Detection |
-| System Libs | Implicit (via base) | Automatic |
+| Component   | Strategy  | Update   |
+| ----------- | --------- | -------- |
+| Base Image  | Semantic  | Auto     |
+| Plex Core   | Exact     | Manual   |
+| System Libs | Implicit  | Auto     |
 
 ## Security Considerations
 
-- **Security patches:** Applied automatically via base image updates
-- **Major upgrades:** For Plex, reviewed manually; for base, requires deliberate action
-- **Testing:** New Plex versions should be tested in a non-production environment first
+- **Security patches:** Applied automatically via base image
+  updates
+- **Major upgrades:** For Plex, reviewed manually; for base,
+  requires deliberate action
+- **Testing:** New Plex versions should be tested in
+  non-production environment first

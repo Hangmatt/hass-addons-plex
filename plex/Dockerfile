@@ -7,7 +7,7 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Build arguments for version control and metadata
 ARG BUILD_ARCH=amd64
-ARG PLEX_VERSION=1.43.0.10492
+ARG PLEX_VERSION=1.4.0
 ARG PLEX_HASH=121068a07
 
 # Install required system dependencies for Plex setup
@@ -21,7 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg2 \
     ca-certificates \
     apt-transport-https && \
-
 # Configure Plex Media Server repository and install
 # 1. Remove any existing Plex repository files to ensure clean state
 # 2. Download and import Plex GPG signing key for package verification
@@ -32,8 +31,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl -LsSf https://downloads.plex.tv/plex-keys/PlexSign.v2.key | gpg --yes --dearmor -o /usr/share/keyrings/plexmediaserver.v2.gpg && \
     echo "deb [signed-by=/usr/share/keyrings/plexmediaserver.v2.gpg] https://repo.plex.tv/deb/ public main" > /etc/apt/sources.list.d/plex.list && \
     apt-get update && \
-    apt-get install -y --no-install-recommends plexmediaserver=1.43.0.10492* && \
-
+    apt-get install -y --no-install-recommends plexmediaserver>=${PLEX_VERSION} && \
 # Clean up package manager cache and temporary files to reduce image size
 # Removes:
 # - apt cache and update lists
