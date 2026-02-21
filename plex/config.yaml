@@ -1,6 +1,6 @@
 ---
 name: Plex Media Server
-version: dev
+version: 1.43.0.10492
 slug: plex
 description: Recorded media, live TV, online news, and podcasts ready to stream.
 url: https://github.com/Hangmatt/hass-addons-plex
