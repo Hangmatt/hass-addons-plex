@@ -6,7 +6,7 @@ FROM ${BUILD_FROM}
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 # Setup base system
-ARG BUILD_ARCH=aarch64
+ARG BUILD_ARCH=arm64
 ARG PLEX_VERSION=1.43.0.10492
 ARG PLEX_HASH=121068a07
 

@@ -4,7 +4,7 @@ version: dev
 slug: plex
 description: Recorded media, live TV, online news, and podcasts ready to stream.
 url: https://github.com/Hangmatt/hass-addons-plex
-webui: http://192.168.178.27:[PORT:32400]/web
+webui: http://[HOST:homeassistant.local]:[PORT:32400]/web
 startup: services
 init: false
 arch:
